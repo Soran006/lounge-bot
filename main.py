@@ -99,41 +99,38 @@ async def check(ctx, mid_score: int, mid_rank: int, room_type: str = "normal"):
     await ctx.send(embed=embed)
 
 
-# ----- 新機能：12レース最終結果 & 予想MMR -----
+# ----- 12レース最終結果 & 予想MMR -----
 @bot.command()
 async def result(ctx, final_score: int, final_rank: int):
-    embed = discord.Embed(
-        title=f"🏁 12レース最終結果: {final_score}点 / {final_rank}位",
-        color=discord.Color.purple(),
-    )
-
-    # 順位・点数に基づく概算MMR変動計算
     if final_rank == 1:
         est_mmr = "+180 〜 +240"
         msg = "👑 大勝利！圧倒的トップです。この調子で盛りまくりましょう！"
-        color = discord.Color.gold()
+        color_val = discord.Color.gold()
     elif final_rank <= 3:
         est_mmr = "+120 〜 +180"
         msg = "🔥 ナイス表彰台！素晴らしい安定感と打開力でした！"
-        color = discord.Color.green()
+        color_val = discord.Color.green()
     elif final_rank <= 6:
         est_mmr = "+50 〜 +110"
         msg = "✨ 勝ち越し成功！しっかりとプラスを確保できました。"
-        color = discord.Color.blue()
+        color_val = discord.Color.blue()
     elif final_rank <= 8:
         est_mmr = "-20 〜 +40"
         msg = "⚖️ ボーダー付近！微増〜微減で耐え切りました。"
-        color = discord.Color.gold()
+        color_val = discord.Color.gold()
     elif final_rank <= 10:
         est_mmr = "-80 〜 -140"
         msg = "⚠️ 苦しい展開でした。次のマッチに向けて立ち回りを見直しましょう。"
-        color = discord.Color.orange()
+        color_val = discord.Color.orange()
     else:
         est_mmr = "-150 〜 -220"
         msg = "😭 大惨事...。次戦は打開重視で手堅く点数を拾いに行きましょう！"
-        color = discord.Color.red()
+        color_val = discord.Color.red()
 
-    embed.color = color
+    embed = discord.Embed(
+        title=f"🏁 12レース最終結果: {final_score}点 / {final_rank}位",
+        color=color_val,
+    )
     embed.add_field(name="📈 予想MMR変動", value=f"**{est_mmr} MMR**", inline=False)
     embed.add_field(name="💬 評価・アドバイス", value=msg, inline=False)
 
