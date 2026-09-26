@@ -27,7 +27,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# 得意コースを記憶するリスト
+# 得意コース記憶用
 good_courses = []
 
 
@@ -99,40 +99,43 @@ async def check(ctx, mid_score: int, mid_rank: int, room_type: str = "normal"):
     await ctx.send(embed=embed)
 
 
-# ----- 12レース最終結果 & 予想MMR -----
+# ----- 12レース最終結果 & 予想MMR（画像基準に完全最適化） -----
 @bot.command()
-async def result(ctx, final_score: int, final_rank: int):
-    if final_rank == 1:
-        est_mmr = "+180 〜 +240"
-        msg = "👑 大勝利！圧倒的トップです。この調子で盛りまくりましょう！"
-        color_val = discord.Color.gold()
-    elif final_rank <= 3:
+async def result(ctx, final_score: int, final_rank: int = 0):
+    if final_score >= 120:
+        eval_title = "⚡ 神レベル（圧倒的無双）"
+        est_mmr = "+180 〜 +250"
+        msg = "👑 完璧なレース運び！部屋を完全に支配しましたね。この調子で盛りまくりましょう！"
+        color_val = discord.Color.purple()
+    elif final_score >= 100:
+        eval_title = "🔥 めちゃくちゃすごい（圧勝級）"
         est_mmr = "+120 〜 +180"
-        msg = "🔥 ナイス表彰台！素晴らしい安定感と打開力でした！"
+        msg = "✨ 大勝収です！上位キープと安定感が素晴らしすぎます。"
         color_val = discord.Color.green()
-    elif final_rank <= 6:
-        est_mmr = "+50 〜 +110"
-        msg = "✨ 勝ち越し成功！しっかりとプラスを確保できました。"
+    elif final_score >= 85:
+        eval_title = "💪 かなりすごい（好成績）"
+        est_mmr = "+60 〜 +120"
+        msg = "👍 しっかりプラスを確保！勝ち越し成功です！"
         color_val = discord.Color.blue()
-    elif final_rank <= 8:
-        est_mmr = "-20 〜 +40"
-        msg = "⚖️ ボーダー付近！微増〜微減で耐え切りました。"
+    elif final_score >= 72:
+        eval_title = "⚖️ 平均〜勝ち越し"
+        est_mmr = "-20 〜 +50"
+        msg = "👌 ボーダーライン越え！しっかり耐えてプラス領域を守り切りました。"
         color_val = discord.Color.gold()
-    elif final_rank <= 10:
-        est_mmr = "-80 〜 -140"
-        msg = "⚠️ 苦しい展開でした。次のマッチに向けて立ち回りを見直しましょう。"
-        color_val = discord.Color.orange()
     else:
-        est_mmr = "-150 〜 -220"
-        msg = "😭 大惨事...。次戦は打開重視で手堅く点数を拾いに行きましょう！"
+        eval_title = "📉 平均以下"
+        est_mmr = "-150 〜 -30"
+        msg = "⚠️ 苦しいマッチでした...。次は打開重視で着実に点数を拾っていきましょう！"
         color_val = discord.Color.red()
 
-    embed = discord.Embed(
-        title=f"🏁 12レース最終結果: {final_score}点 / {final_rank}位",
-        color=color_val,
-    )
+    title_text = f"🏁 12レース最終結果: {final_score}点"
+    if final_rank > 0:
+        title_text += f" / {final_rank}位"
+
+    embed = discord.Embed(title=title_text, color=color_val)
+    embed.add_field(name="🏆 評価", value=f"**{eval_title}**", inline=False)
     embed.add_field(name="📈 予想MMR変動", value=f"**{est_mmr} MMR**", inline=False)
-    embed.add_field(name="💬 評価・アドバイス", value=msg, inline=False)
+    embed.add_field(name="💬 コメント", value=msg, inline=False)
 
     await ctx.send(embed=embed)
 
