@@ -36,55 +36,67 @@ async def on_ready():
     print(f"Logged in as {bot.user.name}")
 
 
-# ----- 6レース終了時分析 -----
+# ----- 6レース終了時分析（最終評価軸に完全対応） -----
 @bot.command()
-async def check(ctx, mid_score: int, mid_rank: int, room_type: str = "normal"):
-    embed = discord.Embed(
-        title=f"📊 6レース終了時分析: {mid_score}点 / {mid_rank}位",
-        color=discord.Color.blue(),
-    )
+async def check(ctx, mid_score: int, mid_rank: int = 0, room_type: str = "normal"):
+    title_text = f"📊 6レース終了時分析: {mid_score}点"
+    if mid_rank > 0:
+        title_text += f" / {mid_rank}位"
 
-    if mid_score >= 65:
+    embed = discord.Embed(title=title_text)
+
+    if mid_score >= 60:
+        embed.color = discord.Color.purple()
+        embed.add_field(
+            name="状態: ⚡ 神レベルペース（60点以上）",
+            value=(
+                "・120点超え（圧倒的無双）が十分狙える神ペース！\n"
+                "・無理な突っ込みだけ避け、今の前張り／打開のテンポを維持。\n"
+                "・**目標**: 後半も60点近く積み上げて無双狙い！"
+            ),
+            inline=False,
+        )
+    elif mid_score >= 50:
         embed.color = discord.Color.green()
         embed.add_field(
-            name="状態: EXCELLENT（爆盛れペース）",
+            name="状態: 🔥 圧勝級ペース（50〜59点）",
             value=(
-                "・後半も今の前張り／打開のバランスを維持。\n"
-                "・中位数位での強引な突っ込みだけ注意！\n"
-                "・**目標**: 後半も50〜60点以上積み上げて120点超え！"
+                "・100点超え（圧勝級）を狙える大チャンス！\n"
+                "・無駄な事故を避け、確実に上位〜中位上位でまとめよう。\n"
+                "・**目標**: 後半50点以上稼いで100点オーバー達成！"
             ),
             inline=False,
         )
-    elif mid_score >= 45:
+    elif mid_score >= 43:
         embed.color = discord.Color.blue()
         embed.add_field(
-            name="状態: GOOD（勝ち越しペース）",
+            name="状態: 💪 好成績ペース（43〜49点）",
             value=(
-                "・無駄なリスクは不要。事故ったらコンマ1秒で24位まで下がる。\n"
-                "・中位に巻き込まれたら即アイテム溜め（コイン10枚＋無敵）にシフト。\n"
-                "・**目標**: 後半で40〜50点稼ぎ、全体8位以内（85〜95点以上）を確保！"
+                "・85点以上の『かなりすごい（好成績）』ラインが目の前！\n"
+                "・中位混戦に巻き込まれたら即アイテム確保＋コイン10枚へ切り替え。\n"
+                "・**目標**: 後半42点以上稼いで85〜95点オーバーを確保！"
             ),
             inline=False,
         )
-    elif mid_score >= 30:
+    elif mid_score >= 36:
         embed.color = discord.Color.gold()
         embed.add_field(
-            name="状態: WARNING（警戒・事故防止優先）",
+            name="状態: ⚖️ 平均・ボーダーペース（36〜42点）",
             value=(
-                "・前追いはリスク大。事故時の即降下を徹底。\n"
-                "・1位狙いではなく『12位以上（6点以上）』を泥臭く拾う立ち回りへ。\n"
-                "・**目標**: 後半40点稼ぎ、平均ライン（75点付近）まで押し戻す！"
+                "・後半でしっかり巻き返せば72点（勝ち越しライン）を十分確保可能！\n"
+                "・1位を狙いすぎて事故るより、泥臭く6〜8点（12位以上）を確実に拾う。\n"
+                "・**目標**: 後半36点以上キープで72点以上を守り切る！"
             ),
             inline=False,
         )
     else:
         embed.color = discord.Color.red()
         embed.add_field(
-            name="状態: DANGER（大炎上アラート・被害最小限へ）",
+            name="状態: ⚠️ 平均以下警告（35点以下）",
             value=(
-                "・前張り一切禁止。全レース『完全打開（コイン10枚＋強無敵）』徹底！\n"
-                "・目的を130点から『-200オーバーのドカンを回避する作業』に変更。\n"
-                "・**目標**: 後半最低35〜40点を死守し、合計65〜70点（傷口最小限）で耐える！"
+                "・前追いはリスク大！全レース『完全打開（コイン10枚＋強無敵）』徹底！\n"
+                "・目的を大勝ちから『マイナス（大ドカン）を最小限に抑える作業』に変更。\n"
+                "・**目標**: 後半最低37点以上を死守して72点ボーダーまで押し戻す！"
             ),
             inline=False,
         )
@@ -99,7 +111,7 @@ async def check(ctx, mid_score: int, mid_rank: int, room_type: str = "normal"):
     await ctx.send(embed=embed)
 
 
-# ----- 12レース最終結果 & 予想MMR（画像基準に完全最適化） -----
+# ----- 12レース最終結果 & 予想MMR -----
 @bot.command()
 async def result(ctx, final_score: int, final_rank: int = 0):
     if final_score >= 120:
@@ -110,7 +122,7 @@ async def result(ctx, final_score: int, final_rank: int = 0):
     elif final_score >= 100:
         eval_title = "🔥 めちゃくちゃすごい（圧勝級）"
         est_mmr = "+120 〜 +180"
-        msg = "✨ 大勝収です！上位キープと安定感が素晴らしすぎます。"
+        msg = "✨ 大勝ちです！上位キープと安定感が素晴らしすぎます。"
         color_val = discord.Color.green()
     elif final_score >= 85:
         eval_title = "💪 かなりすごい（好成績）"
